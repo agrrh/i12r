@@ -3,8 +3,7 @@
 import fire
 import sys
 import os
-import glob
-
+import re
 
 from rich import print as rprint
 
@@ -19,19 +18,21 @@ def get_files(path: str):
             yield os.path.join(root, file)
 
 
-def get_excludes(exclude: list):
-    for pattern in exclude:
-        for path in glob.glob(pattern, recursive=True):
-            yield path
+def cli_entrypoint(debug: bool = False, path: str = "./", include: list = [], exclude: list = ["/.git/"]) -> list:
+    def filter_includes(candidate):
+        for regex in include:
+            if re.search(regex, candidate):
+                return True
 
+        return False
 
-def get_includes(include: list):
-    for pattern in include:
-        for path in glob.glob(pattern, recursive=True):
-            yield path
+    def filter_excludes(candidate):
+        for regex in exclude:
+            if re.search(regex, candidate):
+                return False
 
+        return True
 
-def cli_entrypoint(debug: bool = False, path: str = "./", include: list = [], exclude: list = ["./.git/**"]):
     eprint(f"# Working with root: {path}")
     eprint(f"# Include only: {include}")
     eprint(f"# Exclude from: {exclude}")
@@ -39,11 +40,11 @@ def cli_entrypoint(debug: bool = False, path: str = "./", include: list = [], ex
     files = list(get_files(path))
 
     if include:
-        includes = list(get_includes(include))
-        files = set(files).intersection(set(includes))
+        files = filter(filter_includes, files)
 
-    excludes = list(get_excludes(exclude))
-    files = [file for file in files if file not in excludes]
+    files = filter(filter_excludes, files)
+
+    files = list(files)
 
     eprint(f"# Files found: {files}")
 
