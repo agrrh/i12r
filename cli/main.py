@@ -40,11 +40,9 @@ def cli_entrypoint(debug: bool = False, path: str = "./", include: list = [], ex
     files = list(get_files(path))
 
     if include:
-        files = filter(filter_includes, files)
+        files = list(filter(filter_includes, files))
 
-    files = filter(filter_excludes, files)
-
-    files = list(files)
+    files = list(filter(filter_excludes, files))
 
     eprint(f"# Files found: {files}")
 
