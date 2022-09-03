@@ -7,6 +7,8 @@ import re
 
 from rich import print as rprint
 
+from i12r.issue_manager import IssueManager
+
 
 def eprint(s: str):
     rprint(s, file=sys.stderr)
@@ -46,8 +48,18 @@ def cli_entrypoint(debug: bool = False, path: str = "./", include: list = [], ex
 
     eprint(f"# Files found: {files}")
 
-    # TODO Call for i12r library to get issues
-    # TODO Print issues found
+    i12r = IssueManager()
+
+    for file in files:
+        # TODO Skip non-text mime-types
+        with open(file) as fp:
+            data = fp.read()
+
+        issues = list(i12r.find(file, data))
+        print(issues)
+
+    # TODO Print found issues in pretty format
+    # TODO Print found issues in machine-readable format
 
 
 if __name__ == "__main__":
