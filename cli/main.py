@@ -52,6 +52,7 @@ def cli_entrypoint(debug: bool = False, path: str = "./", include: list = [], ex
 
     for file in files:
         # TODO Skip non-text mime-types
+        # TODO Process errors e.g. missing symlinks, non-text file contents
         with open(file) as fp:
             data = fp.read()
 
