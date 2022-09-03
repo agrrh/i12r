@@ -56,7 +56,8 @@ def cli_entrypoint(debug: bool = False, path: str = "./", include: list = [], ex
             data = fp.read()
 
         issues = list(i12r.find(file, data))
-        print(issues)
+
+        [rprint(i) for i in issues]
 
     # TODO Print found issues in pretty format
     # TODO Print found issues in machine-readable format
