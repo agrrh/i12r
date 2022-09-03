@@ -7,7 +7,9 @@ from i12r.issue import Issue
 
 class IssueManager:
     def find(self, fname, text):
-        for line_n, line in enumerate(text.split("\n")):
+        lines = text.split("\n")
+
+        for line_n, line in enumerate(lines, 1):
             # TODO Support more prefixes, e.g. FIXME
 
             # TODO Support more comment notations
