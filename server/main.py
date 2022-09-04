@@ -1,4 +1,4 @@
-# TODO Manage project state
+"""Server to manage project state."""
 
 if __name__ == "__main__":
     pass
