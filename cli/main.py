@@ -24,7 +24,7 @@ def get_files(path: str):
             yield os.path.join(root, file)
 
 
-def cli_entrypoint(debug: bool = False, path: str = "./", include: int = None, exclude: iter = ("/.git/")) -> list:
+def cli_entrypoint(debug: bool = False, path: str = "./", include: int = None, exclude: iter = ("/.git/",)) -> list:
     """CLI entrypoint."""
     # TODO: Implement debug output
     if debug:
