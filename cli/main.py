@@ -11,30 +11,56 @@ from rich import print as rprint
 from i12r.issue_manager import IssueManager
 
 
-# TODO: That's a poor man's logging, rework later
-def eprint(string: str):
+# TODO Use default logging system
+def _eprint(string: str):
     """Rich print to STDERR."""
     rprint(string, file=sys.stderr)
 
 
-def get_files(path: str):
+def _get_files(path: str):
     """Generate paths for files in selected directory."""
     for root, _dirs, files in os.walk(path, followlinks=False):
         for file in files:
             yield os.path.join(root, file)
 
 
-def cli_entrypoint(debug: bool = False, path: str = "./", include: int = None, exclude: iter = ("/.git/",)) -> list:
+def _print_result(result_dict: dict, machine_readable: bool = False):
+    if machine_readable:
+        rprint(result_dict)
+
+    else:
+        for file, issues in result_dict.items():
+            if issues:
+                file = f"[purple]{file}[/purple]"
+
+                for issue in issues:
+                    level = f"[bold blue]{issue['level']}[/bold blue]"
+                    lines = (
+                        f"[blue]{issue['line_start']}:{issue['line_end']}[/blue]"
+                        if issue["line_start"] != issue["line_end"]
+                        else f"[blue]{issue['line_start']}[/blue]"
+                    )
+                    content = f"{issue['content']}"
+
+                    rprint(f"{level}\t{file}:{lines}\n{content}")
+
+                    print("")
+
+
+def cli_entrypoint(
+    debug: bool = False,
+    path: str = "./",
+    include: int = None,
+    exclude: iter = ("/.git/",),
+    json: bool = False,
+) -> list:
     """CLI entrypoint."""
-    # TODO: Implement debug output
     if debug:
-        pass
+        _eprint(f"# Working with root: {path}")
+        _eprint(f"# Include only: {include}")
+        _eprint(f"# Exclude from: {exclude}")
 
-    eprint(f"# Working with root: {path}")
-    eprint(f"# Include only: {include}")
-    eprint(f"# Exclude from: {exclude}")
-
-    files = list(get_files(path))
+    files = list(_get_files(path))
 
     # Include only paths which match at least 1 include regex
     if include:
@@ -43,9 +69,14 @@ def cli_entrypoint(debug: bool = False, path: str = "./", include: int = None, e
     # Exclude paths which matches at least 1 exclude regex
     files = filter(lambda x: not any(re.search(regex, x) for regex in exclude), files)
 
-    eprint(f"# Files found: {files}")
+    files = list(files)
+
+    if debug:
+        _eprint(f"# Files found: {files}")
 
     i12r = IssueManager()
+
+    result_dict = {}
 
     for file in files:
         # TODO Skip non-text mime-types
@@ -55,11 +86,9 @@ def cli_entrypoint(debug: bool = False, path: str = "./", include: int = None, e
 
         issues = list(i12r.find(file, data))
 
-        for issue in issues:
-            eprint(issue)
+        result_dict[file] = [issue.dict(exclude={"fname"}, exclude_defaults=True) for issue in issues]
 
-    # TODO Print found issues in pretty format
-    # TODO Print found issues in machine-readable format
+    _print_result(result_dict, json)
 
 
 if __name__ == "__main__":
