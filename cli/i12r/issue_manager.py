@@ -19,14 +19,14 @@ class IssueManager:
         # TODO Support multi-line comments
 
         """TODO Test 123. Test: hey #!@"""
-        """TODO Test 123. Test: hey #!@
+        """TODO Test 123. Test: hey #foo
             foo
             bar
         """
 
         regexes = (
             r"(#|//)\s?(?P<level>TODO|FIXME):?\s(?P<content>.+)",
-            r'("""|<!--|/\*)\s?(?P<level>TODO|FIXME):?\s(?P<content>.+)\s?("""|-->|\*/)',
+            r'("""|<!--|/\*)\s?(?P<level>TODO|FIXME):?\s(?P<content>[.$]+)\s?("""|-->|\*/)',
         )
 
         for regex in regexes:
@@ -38,7 +38,7 @@ class IssueManager:
 
             for match in matches:
                 # TODO Handle errors (e.g. wrong types)
-                # FIXME Get start/end lines
+                # TODO Get start/end lines
                 issue = Issue(fname=fname, **match.groupdict())
 
                 yield issue
