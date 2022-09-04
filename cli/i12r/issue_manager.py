@@ -2,6 +2,8 @@
 
 import re
 
+from pydantic import ValidationError
+
 from .issue import Issue
 
 
@@ -23,7 +25,6 @@ class IssueManager:
             )
 
             for match in matches:
-                # TODO Handle errors (e.g. wrong types)
                 # TODO Strip trailing whitespaces and newlines
                 # TODO Remove common identation for strings
 
@@ -33,5 +34,10 @@ class IssueManager:
                 line_start = text[: match.start()].count("\n") + 1
                 line_end = line_start + text[pos_start:pos_end].count("\n")
 
-                issue = Issue(fname=fname, **match.groupdict(), line_start=line_start, line_end=line_end)
-                yield issue
+                # TODO Strip trailing whitespaces and newlines
+
+                try:
+                    issue = Issue(fname=fname, line_start=line_start, line_end=line_end, **match.groupdict())
+                    yield issue
+                except ValidationError:
+                    print(f"Could not parse as Issue: {match}")
