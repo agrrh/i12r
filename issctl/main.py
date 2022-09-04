@@ -107,6 +107,8 @@ def cli_entrypoint(
 
     for file in files:
         mime = magic.from_file(file, mime=True)
+
+        # TODO Print skip messages in verbose mode only
         if not mime.startswith("text"):
             _eprint(f"# File detected as [blue]{mime}[/blue], skipping: {file}")
             continue
