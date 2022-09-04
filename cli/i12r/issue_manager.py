@@ -1,8 +1,8 @@
-"""I12r s library."""
+"""Issue manager."""
 
 import re
 
-from issue import Issue
+from .issue import Issue
 
 
 class IssueManager:

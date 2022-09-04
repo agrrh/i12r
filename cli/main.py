@@ -8,7 +8,7 @@ import fire
 
 from rich import print as rprint
 
-from .i12r.issue_manager import IssueManager
+from i12r.issue_manager import IssueManager
 
 
 # TODO: That's a poor man's logging, rework later
