@@ -19,9 +19,13 @@ def _eprint(string: str):
 
 def _get_files(path: str):
     """Generate paths for files in selected directory."""
-    for root, _dirs, files in os.walk(path, followlinks=False):
-        for file in files:
-            yield os.path.join(root, file)
+    if os.path.isfile(path):
+        yield os.path.join(path)
+
+    if os.path.isdir(path):
+        for root, _dirs, files in os.walk(path, followlinks=False):
+            for file in files:
+                yield os.path.join(root, file)
 
 
 def _print_result(result_dict: dict, machine_readable: bool = False):
@@ -48,44 +52,48 @@ def _print_result(result_dict: dict, machine_readable: bool = False):
 
 
 def cli_entrypoint(
+    *args,
     debug: bool = False,
-    path: str = "./",
-    include: iter = (),
-    exclude: iter = ("/.git/",),
+    include: str = r"",
+    exclude: str = r"\./\.git/",
     json: bool = False,
-) -> list:
-    # TODO Check include/exclude params and update docs
-    """CLI entrypoint.
+):
+    r"""CLI entrypoint.
 
-    :param path: Path to scan for files. Defaults to "./".
+    :param args: Paths to scan for files. Defaults to "./".
 
-    :param include: List of regexes to include from files list, e.g.: '["./*", "./**/*.cpp"]'.
-        Defaults to empty list.
+    :param include: Regex to include only matching paths, e.g.: ".+\.cpp$", ".+\.(py|md)$".
+        Defaults to empty string.
 
-    :param exclude: List of regexes to exclude from files list, e.g.: '["./**/__pycache__/"]'.
-        Defaults to '["./.git/"]'.
+    :param exclude: Regex to exclude matching paths from found ones, e.g.: "/dist/".
+        Defaults to "\./\.git/".
 
     :param debug: Set to enable debug output (as standard error stream).
     :param json: Set to enable JSON machine-readable output.
     """
-    if debug:
-        _eprint(f"# Working with root: {path}")
-        _eprint(f"# Include only: {include}")
-        _eprint(f"# Exclude from: {exclude}")
+    if not args:
+        args = ("./",)
 
-    files = list(_get_files(path))
+    if debug:
+        _eprint(f"# Working with paths: {args}")
+        _eprint(f"# Include only: [green]{include}[/green]")
+        _eprint(f"# Exclude from: [green]{exclude}[/green]")
+
+    files = []
+    for path in args:
+        files.extend(_get_files(path))
 
     # Include only paths which match at least 1 include regex
     if include:
-        files = filter(lambda x: any(re.search(regex, x) for regex in include), files)
+        files = filter(lambda x: bool(re.search(include, x)), files)
 
     # Exclude paths which matches at least 1 exclude regex
-    files = filter(lambda x: not any(re.search(regex, x) for regex in exclude), files)
+    files = filter(lambda x: not bool(re.search(exclude, x)), files)
 
     files = list(files)
 
     if debug:
-        _eprint(f"# Files found: {files}")
+        _eprint(f"# Found files: {len(files)}")
 
     i12r = IssueManager()
 
