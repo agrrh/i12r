@@ -55,7 +55,7 @@ def cli_entrypoint(
     *args,
     debug: bool = False,
     include: str = r"",
-    exclude: str = r"\./\.git/",
+    exclude: str = r"",
     json: bool = False,
 ):
     r"""CLI entrypoint.
@@ -66,7 +66,7 @@ def cli_entrypoint(
         Defaults to empty string.
 
     :param exclude: Regex to exclude matching paths from found ones, e.g.: "/dist/".
-        Defaults to "\./\.git/".
+        Defaults to empty string.
 
     :param debug: Set to enable debug output (as standard error stream).
     :param json: Set to enable JSON machine-readable output.
@@ -83,12 +83,16 @@ def cli_entrypoint(
     for path in args:
         files.extend(_get_files(path))
 
+    # Exclude git-related files
+    files = filter(lambda x: not bool(re.search(r"/\.git/", x)), files)
+
     # Include only paths which match at least 1 include regex
     if include:
         files = filter(lambda x: bool(re.search(include, x)), files)
 
     # Exclude paths which matches at least 1 exclude regex
-    files = filter(lambda x: not bool(re.search(exclude, x)), files)
+    if exclude:
+        files = filter(lambda x: not bool(re.search(exclude, x)), files)
 
     files = list(files)
 
