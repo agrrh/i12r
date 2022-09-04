@@ -24,7 +24,7 @@ class IssueManager:
 
             for match in matches:
                 # TODO Handle errors (e.g. wrong types)
-                # TODO Strip trailing newlines
+                # TODO Strip trailing whitespaces and newlines
                 # TODO Remove common identation for strings
 
                 pos_start = match.start()
