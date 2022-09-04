@@ -3,13 +3,14 @@
 import sys
 import os
 import re
+import json
 
 import fire
 import magic
 
 from rich import print as rprint
 
-from i12r.issue_manager import IssueManager
+from .lib.issue_manager import IssueManager
 
 
 # TODO Use default logging system
@@ -31,7 +32,7 @@ def _get_files(path: str):
 
 def _print_result(result_dict: dict, machine_readable: bool = False):
     if machine_readable:
-        rprint(result_dict)
+        print(json.dumps(result_dict))
 
     else:
         for file, issues in result_dict.items():
@@ -57,7 +58,7 @@ def cli_entrypoint(
     debug: bool = False,
     include: str = r"",
     exclude: str = r"",
-    json: bool = False,
+    use_json: bool = False,
 ):
     r"""CLI entrypoint.
 
@@ -70,7 +71,7 @@ def cli_entrypoint(
         Defaults to empty string.
 
     :param debug: Set to enable debug output (as standard error stream).
-    :param json: Set to enable JSON machine-readable output.
+    :param use_json: Set to enable JSON machine-readable output.
     """
     if not args:
         args = ("./",)
@@ -100,7 +101,7 @@ def cli_entrypoint(
     if debug:
         _eprint(f"# Found files: {len(files)}")
 
-    i12r = IssueManager()
+    issue_manager = IssueManager()
 
     result_dict = {}
 
@@ -114,15 +115,19 @@ def cli_entrypoint(
         with open(file, encoding="utf-8") as file_:
             data = file_.read()
 
-        issues = list(i12r.find(file, data))
+        issues = list(issue_manager.find(file, data))
 
         result_dict[file] = [issue.dict(exclude={"fname"}, exclude_defaults=True) for issue in issues]
 
-    _print_result(result_dict, json)
+    _print_result(result_dict, use_json)
+
+
+def run():
+    """Method to fire off cli."""
+    fire.Fire(cli_entrypoint)
 
 
 if __name__ == "__main__":
     # TODO Get include/exclude from global config
     # TODO Get include/exclude from in-repository config
-
-    fire.Fire(cli_entrypoint)
+    run()
