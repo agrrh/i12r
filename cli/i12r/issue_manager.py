@@ -25,8 +25,6 @@ class IssueManager:
             )
 
             for match in matches:
-                # TODO Strip trailing whitespaces and newlines
-                # TODO Remove common identation for strings
 
                 pos_start = match.start()
                 pos_end = match.end()
@@ -35,6 +33,8 @@ class IssueManager:
                 line_end = line_start + text[pos_start:pos_end].count("\n")
 
                 # TODO Strip trailing whitespaces and newlines
+                # TODO Remove common identation for strings
+                # TODO Generate some ID based on file? and contents
 
                 try:
                     issue = Issue(fname=fname, line_start=line_start, line_end=line_end, **match.groupdict())
