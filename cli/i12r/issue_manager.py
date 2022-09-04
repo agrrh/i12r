@@ -10,35 +10,23 @@ class IssueManager:
 
     def find(self, fname: str, text: str):
         """Generate Issue objects found in text."""
-        # TODO Support more comment notations
-        #   <!-- comment -->
-        #   /* comment */
-        #   // comment
-        #   """comment"""
-
-        # TODO Support multi-line comments
-
-        """TODO Test 123. Test: hey #!@"""
-        """TODO Test 123. Test: hey #foo
-            foo
-            bar
-        """
-
         regexes = (
-            r"(#|//)\s?(?P<level>TODO|FIXME):?\s(?P<content>.+)",
-            r'("""|<!--|/\*)\s?(?P<level>TODO|FIXME):?\s(?P<content>[.$]+)\s?("""|-->|\*/)',
+            r"(#|//)\s?(?P<level>TODO|FIXME):?\s(?P<content>.+?)$",
+            r'("""|<!--|/\*)\s?(?P<level>TODO|FIXME):?\s(?P<content>.+?)\s?("""|-->|\*/)$',
         )
 
         for regex in regexes:
             matches = re.finditer(
                 regex,
                 text,
-                re.MULTILINE,
+                re.MULTILINE | re.DOTALL,
             )
 
             for match in matches:
                 # TODO Handle errors (e.g. wrong types)
                 # TODO Get start/end lines
+                # TODO Strip trailing newlines
+                # TODO Remove common identation for strings
                 issue = Issue(fname=fname, **match.groupdict())
 
                 yield issue
