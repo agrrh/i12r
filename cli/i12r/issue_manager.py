@@ -24,9 +24,12 @@ class IssueManager:
 
             for match in matches:
                 # TODO Handle errors (e.g. wrong types)
-                # TODO Get start/end lines
                 # TODO Strip trailing newlines
                 # TODO Remove common identation for strings
                 issue = Issue(fname=fname, **match.groupdict())
 
                 yield issue
+                line_start = text[: match.start()].count("\n") + 1
+                line_end = line_start + text[match.start() : match.end()].count("\n")
+                    issue = Issue(fname=fname, **match.groupdict(), line_start=line_start, line_end=line_end)
+                    yield issue
