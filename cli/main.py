@@ -50,11 +50,24 @@ def _print_result(result_dict: dict, machine_readable: bool = False):
 def cli_entrypoint(
     debug: bool = False,
     path: str = "./",
-    include: int = None,
+    include: iter = (),
     exclude: iter = ("/.git/",),
     json: bool = False,
 ) -> list:
-    """CLI entrypoint."""
+    # TODO Check include/exclude params and update docs
+    """CLI entrypoint.
+
+    :param path: Path to scan for files. Defaults to "./".
+
+    :param include: List of regexes to include from files list, e.g.: '["./*", "./**/*.cpp"]'.
+        Defaults to empty list.
+
+    :param exclude: List of regexes to exclude from files list, e.g.: '["./**/__pycache__/"]'.
+        Defaults to '["./.git/"]'.
+
+    :param debug: Set to enable debug output (as standard error stream).
+    :param json: Set to enable JSON machine-readable output.
+    """
     if debug:
         _eprint(f"# Working with root: {path}")
         _eprint(f"# Include only: {include}")
