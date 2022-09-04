@@ -26,10 +26,12 @@ class IssueManager:
                 # TODO Handle errors (e.g. wrong types)
                 # TODO Strip trailing newlines
                 # TODO Remove common identation for strings
-                issue = Issue(fname=fname, **match.groupdict())
 
-                yield issue
+                pos_start = match.start()
+                pos_end = match.end()
+
                 line_start = text[: match.start()].count("\n") + 1
-                line_end = line_start + text[match.start() : match.end()].count("\n")
-                    issue = Issue(fname=fname, **match.groupdict(), line_start=line_start, line_end=line_end)
-                    yield issue
+                line_end = line_start + text[pos_start:pos_end].count("\n")
+
+                issue = Issue(fname=fname, **match.groupdict(), line_start=line_start, line_end=line_end)
+                yield issue
