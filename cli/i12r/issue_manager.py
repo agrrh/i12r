@@ -31,7 +31,7 @@ class IssueManager:
                 pos_start = match.start()
                 pos_end = match.end()
 
-                line_start = text[: match.start()].count("\n") + 1
+                line_start = text[:pos_start].count("\n") + 1
                 line_end = line_start + text[pos_start:pos_end].count("\n")
 
                 # TODO Strip trailing whitespaces and newlines
