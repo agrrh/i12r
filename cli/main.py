@@ -1,39 +1,34 @@
-# TODO Tool to detect issues
+"""CLI tool to detect issues."""
 
-import fire
 import sys
 import os
 import re
 
+import fire
+
 from rich import print as rprint
 
-from i12r.issue_manager import IssueManager
+from .i12r.issue_manager import IssueManager
 
 
-def eprint(s: str):
-    rprint(s, file=sys.stderr)
+# TODO: That's a poor man's logging, rework later
+def eprint(string: str):
+    """Rich print to STDERR."""
+    rprint(string, file=sys.stderr)
 
 
 def get_files(path: str):
-    for root, dirs, files in os.walk(path, followlinks=False):
+    """Generate paths for files in selected directory."""
+    for root, _dirs, files in os.walk(path, followlinks=False):
         for file in files:
             yield os.path.join(root, file)
 
 
-def cli_entrypoint(debug: bool = False, path: str = "./", include: list = [], exclude: list = ["/.git/"]) -> list:
-    def filter_includes(candidate):
-        for regex in include:
-            if re.search(regex, candidate):
-                return True
-
-        return False
-
-    def filter_excludes(candidate):
-        for regex in exclude:
-            if re.search(regex, candidate):
-                return False
-
-        return True
+def cli_entrypoint(debug: bool = False, path: str = "./", include: int = None, exclude: iter = ("/.git/")) -> list:
+    """CLI entrypoint."""
+    # TODO: Implement debug output
+    if debug:
+        pass
 
     eprint(f"# Working with root: {path}")
     eprint(f"# Include only: {include}")
@@ -41,10 +36,12 @@ def cli_entrypoint(debug: bool = False, path: str = "./", include: list = [], ex
 
     files = list(get_files(path))
 
+    # Include only paths which match at least 1 include regex
     if include:
-        files = list(filter(filter_includes, files))
+        files = filter(lambda x: any(re.search(regex, x) for regex in include), files)
 
-    files = list(filter(filter_excludes, files))
+    # Exclude paths which matches at least 1 exclude regex
+    files = filter(lambda x: not any(re.search(regex, x) for regex in exclude), files)
 
     eprint(f"# Files found: {files}")
 
@@ -53,12 +50,13 @@ def cli_entrypoint(debug: bool = False, path: str = "./", include: list = [], ex
     for file in files:
         # TODO Skip non-text mime-types
         # TODO Process errors e.g. missing symlinks, non-text file contents
-        with open(file) as fp:
-            data = fp.read()
+        with open(file, encoding="utf-8") as file_:
+            data = file_.read()
 
         issues = list(i12r.find(file, data))
 
-        [rprint(i) for i in issues]
+        for issue in issues:
+            eprint(issue)
 
     # TODO Print found issues in pretty format
     # TODO Print found issues in machine-readable format

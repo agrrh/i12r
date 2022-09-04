@@ -1,12 +1,15 @@
-# TODO Library
+"""I12r s library."""
 
 import re
 
-from i12r.issue import Issue
+from issue import Issue
 
 
 class IssueManager:
-    def find(self, fname, text):
+    """Library to manage issues found in code."""
+
+    def find(self, fname: str, text: str):
+        """Generate Issue objects found in text."""
         lines = text.split("\n")
 
         for line_n, line in enumerate(lines, 1):
@@ -20,7 +23,7 @@ class IssueManager:
 
             # TODO Support multi-line comments
 
-            match = re.search(r"#\s?TODO\s(?P<content>.+)", line)
+            match = re.search(r"#\s?TODO:?\s(?P<content>.+)", line)
 
             if match:
                 content = match.group("content")
