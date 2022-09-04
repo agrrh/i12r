@@ -5,6 +5,7 @@ import os
 import re
 
 import fire
+import magic
 
 from rich import print as rprint
 
@@ -104,7 +105,11 @@ def cli_entrypoint(
     result_dict = {}
 
     for file in files:
-        # TODO Skip non-text mime-types
+        mime = magic.from_file(file, mime=True)
+        if not mime.startswith("text"):
+            _eprint(f"# File detected as [blue]{mime}[/blue], skipping: {file}")
+            continue
+
         # TODO Process errors e.g. missing symlinks, non-text file contents
         with open(file, encoding="utf-8") as file_:
             data = file_.read()
