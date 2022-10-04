@@ -81,6 +81,9 @@ def cli_entrypoint(
         _eprint(f"# Include only: [green]{include}[/green]")
         _eprint(f"# Exclude from: [green]{exclude}[/green]")
 
+    # TODO Add option to print non-colored messages
+    # TODO Rephrase `use_json` option to just `json`
+
     files = []
     for path in args:
         files.extend(_get_files(path))
